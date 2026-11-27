@@ -9,7 +9,6 @@ export default function PostsPage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // Filter & Search states
   const [searchValue, setSearchValue] = useState("");
   const [category, setCategory] = useState("All");
 

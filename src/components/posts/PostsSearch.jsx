@@ -2,13 +2,13 @@ import { Search } from "lucide-react";
 
 export default function PostsSearch({ searchValue, setSearchValue }) {
   return (
-    <section className="bg-linear-to-r from-[#F7F1FD] to-[#F1F1FE] px-4 py-16 lg:py-24">
+    <section className="bg-linear-to-r from-[#F7F1FD] to-[#F1F1FE] px-4 py-24">
       <div className="mx-auto flex w-full max-w-7xl flex-col items-center text-center">
         <div className="w-full max-w-xl">
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-[42px]">
+          <h1 className="text-[42px] font-bold tracking-tight text-slate-900">
             Explore Our Posts
           </h1>
-          <p className="mt-3 text-sm text-slate-500 sm:text-base">
+          <p className="mt-3 text-base text-slate-500">
             Discover amazing content from talented writers across various topics
           </p>
 

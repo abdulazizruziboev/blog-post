@@ -4,14 +4,14 @@ import { ArrowRight } from "lucide-react";
 
 export default function HeroSection() {
   return (
-    <section className="bg-linear-to-r from-[#F7F1FD] to-[#F1F1FE] px-4 py-20 lg:py-32">
-      <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-12 lg:flex-row">
+    <section className="bg-linear-to-r from-[#F7F1FD] to-[#F1F1FE] px-4 py-32">
+      <div className="mx-auto flex w-full max-w-7xl flex-row items-center justify-between gap-12">
         <div className="max-w-xl">
-          <h1 className="text-5xl font-bold leading-tight text-[#0F1729] sm:text-6xl">
+          <h1 className="text-6xl font-bold leading-tight text-[#0F1729]">
             Create, Read, <br />
             <span className="text-[#8524E5]">Inspire.</span>
           </h1>
-          <p className="my-6 max-w-md text-lg leading-7 text-[#6B7280] sm:text-xl">
+          <p className="my-6 max-w-md text-xl leading-7 text-[#6B7280]">
             Discover stories written by amazing people. Share your knowledge and
             inspire others with your unique perspective.
           </p>

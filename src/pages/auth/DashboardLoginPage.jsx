@@ -52,14 +52,13 @@ export default function DashboardLoginPage() {
   }
 
   return (
-    <div className="min-h-screen grid bg-white lg:grid-cols-2">
-      {/* Left column */}
-      <div className="flex flex-col justify-between px-6 py-10 sm:px-14 lg:px-20">
+    <div className="min-h-screen grid grid-cols-2 bg-white">
+      <div className="flex flex-col justify-between px-20 py-10">
         <div className="my-auto">
           <div className="mx-auto w-full max-w-[400px]">
             <Link to="/" className="inline-flex w-fit rounded-md">
-            <img src={Logo} alt="Blogify logo" className="h-7 w-auto" />
-          </Link>
+              <img src={Logo} alt="Blogify logo" className="h-7 w-auto" />
+            </Link>
           </div>
           <div className="mx-auto mt-2 w-full max-w-[400px]">
             <Link
@@ -70,11 +69,11 @@ export default function DashboardLoginPage() {
               Back to Home
             </Link>
 
-            <div className="rounded-xl border border-[#E5E7EB] bg-white p-7 sm:p-8">
+            <div className="rounded-xl border border-[#E5E7EB] bg-white p-8">
               <h1 className="text-2xl font-bold tracking-tight text-[#0F1729]">
                 Welcome Back
               </h1>
-              <p className="mt-1 text-xs text-[#6B7280] sm:text-sm">
+              <p className="mt-1 text-sm text-[#6B7280]">
                 Enter your credentials to access your account
               </p>
 
@@ -82,7 +81,7 @@ export default function DashboardLoginPage() {
                 <div>
                   <label
                     htmlFor="login"
-                    className="block text-xs font-medium text-[#0F1729] sm:text-sm"
+                    className="block text-sm font-medium text-[#0F1729]"
                   >
                     Email
                   </label>
@@ -99,7 +98,7 @@ export default function DashboardLoginPage() {
                 <div>
                   <label
                     htmlFor="password"
-                    className="block text-xs font-medium text-[#0F1729] sm:text-sm"
+                    className="block text-sm font-medium text-[#0F1729]"
                   >
                     Password
                   </label>
@@ -128,7 +127,7 @@ export default function DashboardLoginPage() {
                 Don&apos;t have an account?{" "}
                 <Link
                   to="/register"
-                  className="font-medium text-[#4346EF] hover:underline"
+                  className="font-medium text-[#4346EF] hover:underline pointer-events-none"
                 >
                   Sign up
                 </Link>
@@ -140,8 +139,7 @@ export default function DashboardLoginPage() {
         <div className="h-4" />
       </div>
 
-      {/* Right column */}
-      <div className="hidden flex-col items-center justify-center bg-[#F3F0FF] px-8 py-12 text-center lg:flex">
+      <div className="flex flex-col items-center justify-center bg-[#F3F0FF] px-8 py-12 text-center">
         <img
           src={LoginMain}
           alt="Start writing your stories"
@@ -153,7 +151,7 @@ export default function DashboardLoginPage() {
         <h2 className="text-lg font-bold text-[#0F1729]">
           Start writing your stories
         </h2>
-        <p className="mt-1 text-xs text-[#6B7280] sm:text-sm">
+        <p className="mt-1 text-sm text-[#6B7280]">
           Join thousands of creators sharing their stories on Blogify
         </p>
       </div>

@@ -36,8 +36,8 @@ export default function App() {
       children: [
         { index: true, element: <DashboardPage /> },
         { path: "posts", element: <AdminPostsPage /> },
-        { path: "create-post", element: <CreatePostPage /> },
-        { path: "posts/:id/edit", element: <CreatePostPage /> },
+        { path: "create-post", element: <CreatePostPage key="create" /> },
+        { path: "posts/:id/edit", element: <CreatePostPage key="edit" /> },
       ],
     },
   ]);

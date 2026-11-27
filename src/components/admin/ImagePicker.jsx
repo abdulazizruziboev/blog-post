@@ -1,78 +1,47 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Upload, X } from "lucide-react";
 
-const ACCEPTED = ["image/png", "image/jpeg", "image/webp"];
-const MAX_WIDTH = 1200;
-
-// The API stores `image` as a string, so uploaded files are downscaled and
-// sent as a compressed JPEG data URL (~100–250 KB) instead of the raw file.
-function fileToDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      const scale = Math.min(1, MAX_WIDTH / img.width);
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(url);
-      resolve(canvas.toDataURL("image/jpeg", 0.8));
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("Could not read this image."));
-    };
-    img.src = url;
-  });
-}
-
-export default function ImagePicker({ value, onChange }) {
-  const inputRef = useRef(null);
-  const [dragging, setDragging] = useState(false);
+export default function ImagePicker({ image, setImage }) {
+  const [imageUrl, setImageUrl] = useState("");
   const [error, setError] = useState("");
-  const [urlInput, setUrlInput] = useState("");
 
-  async function handleFile(file) {
-    setError("");
+  function handleFileChange(e) {
+    const file = e.target.files[0];
     if (!file) return;
-    if (!ACCEPTED.includes(file.type)) {
-      setError("Please choose a PNG, JPG or WEBP image.");
+
+    if (file.size > 1024 * 1024) {
+      setError("Image must be smaller than 1MB");
       return;
     }
-    try {
-      onChange(await fileToDataUrl(file));
-    } catch (err) {
-      setError(err.message);
-    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImage(reader.result);
+      setError("");
+    };
+    reader.readAsDataURL(file);
   }
 
-  function applyUrl() {
-    const url = urlInput.trim();
-    if (!url) return;
-    if (!/^https?:\/\//i.test(url)) {
-      setError("Image URL must start with http:// or https://");
+  function handleAddUrl() {
+    if (!imageUrl.startsWith("http")) {
+      setError("Please enter a valid image URL");
       return;
     }
+    setImage(imageUrl);
+    setImageUrl("");
     setError("");
-    onChange(url);
-    setUrlInput("");
   }
 
-  if (value) {
+  if (image) {
     return (
       <div className="relative overflow-hidden rounded-lg border border-[#E5E7EB]">
-        <img src={value} alt="Featured preview" className="aspect-video w-full object-cover" />
+        <img src={image} alt="Featured" className="w-full h-44 object-cover" />
         <button
           type="button"
-          onClick={() => onChange("")}
+          onClick={() => setImage("")}
           className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-white hover:bg-black/80 cursor-pointer"
-          aria-label="Remove image"
         >
-          <X className="h-3.5 w-3.5" />
+          <X className="size-3.5" />
         </button>
       </div>
     );
@@ -80,55 +49,29 @@ export default function ImagePicker({ value, onChange }) {
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={() => inputRef.current?.click()}
-        onDragOver={(e) => {
-          e.preventDefault();
-          setDragging(true);
-        }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={(e) => {
-          e.preventDefault();
-          setDragging(false);
-          handleFile(e.dataTransfer.files?.[0]);
-        }}
-        className={`flex w-full flex-col items-center justify-center rounded-lg border-2 border-dashed px-4 py-8 text-center cursor-pointer ${
-          dragging ? "border-[#4346EF] bg-[#EEF0FF]" : "border-[#E5E7EB] hover:border-[#4346EF]/50"
-        }`}
-      >
-        <Upload className="h-6 w-6 text-[#6B7280]" />
-        <span className="mt-2 text-xs text-[#6B7280]">Click to upload or drag and drop</span>
-        <span className="mt-0.5 text-[11px] text-[#9CA3AF]">PNG, JPG or WEBP</span>
-      </button>
-      <input
-        ref={inputRef}
-        type="file"
-        accept={ACCEPTED.join(",")}
-        className="hidden"
-        onChange={(e) => {
-          handleFile(e.target.files?.[0]);
-          e.target.value = "";
-        }}
-      />
-
-      <div className="mt-3 flex gap-2">
+      <label className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-[#E5E7EB] px-4 py-8 text-center hover:border-[#4346EF] cursor-pointer">
+        <Upload className="size-6 text-[#6B7280]" />
+        <span className="mt-2 text-xs text-[#6B7280]">Click to upload</span>
+        <span className="mt-0.5 text-[11px] text-[#9CA3AF]">PNG, JPG or WEBP (max 1MB)</span>
         <input
-          type="url"
-          value={urlInput}
-          onChange={(e) => setUrlInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              applyUrl();
-            }
-          }}
+          type="file"
+          accept="image/png, image/jpeg, image/webp"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+      </label>
+
+      <div className="flex gap-2 mt-3">
+        <input
+          type="text"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
           placeholder="or paste an image URL"
-          className="min-w-0 flex-1 rounded-lg border border-[#E5E7EB] px-3 py-2 text-xs text-[#0F1729] outline-none focus:border-[#4346EF]"
+          className="flex-1 min-w-0 rounded-lg border border-[#E5E7EB] px-3 py-2 text-xs text-[#0F1729] outline-none focus:border-[#4346EF]"
         />
         <button
           type="button"
-          onClick={applyUrl}
+          onClick={handleAddUrl}
           className="rounded-lg border border-[#E5E7EB] px-3 py-2 text-xs font-medium text-[#0F1729] hover:bg-[#F9FAFB] cursor-pointer"
         >
           Add

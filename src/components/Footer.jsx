@@ -8,7 +8,6 @@ export default function Footer() {
   return (
     <footer className="p-4 bg-white border-t border-t-black/5">
       <div className="max-w-7xl w-full mx-auto">
-        {/*  */}
         <div className="flex justify-between w-full">
           <div className="flex flex-col gap-4">
             <Link to="/" className="inline-flex w-fit rounded-md">
@@ -19,7 +18,6 @@ export default function Footer() {
               talented creators from around the world.
             </p>
           </div>
-          {/*  */}
           <div>
             <h2 className="text-[#0F1729] text-[24px] leading-8 font-semibold">
               Quick links
@@ -30,7 +28,6 @@ export default function Footer() {
               <Link to="/login" className="w-fit rounded-md hover:text-[#4346EF]">Login</Link>
             </nav>
           </div>
-          {/*  */}
           <div>
             <h2 className="text-[#0F1729] text-[24px] leading-8 font-semibold">
               Connect
@@ -68,7 +65,6 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        {/*  */}
         <hr className="w-full my-8 opacity-25" />
         <div className="text-center">
           <p className="text-[#6B7280] text-[14px] leading-5 ">

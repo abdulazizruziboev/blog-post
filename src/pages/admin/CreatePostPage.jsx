@@ -1,238 +1,221 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import PageHeader from "../../components/admin/PageHeader";
+import { LoaderCircle } from "lucide-react";
 import ImagePicker from "../../components/admin/ImagePicker";
-import { ErrorState, LoadingState } from "../../components/admin/StateMessage";
-import { CATEGORIES, STATUSES, apiRequest } from "../../tools/api";
+import { getAuth } from "../../utils/auth";
 
-const emptyForm = {
-  title: "",
-  excerpt: "",
-  content: "",
-  category: "",
-  status: "Published",
-  image: "",
-};
-
-const inputClass =
-  "mt-1.5 w-full rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm text-[#0F1729] outline-none transition focus:border-[#4346EF]";
-const labelClass = "block text-sm font-medium text-[#0F1729]";
-const cardClass = "rounded-xl border border-[#E5E7EB] bg-white p-5 sm:p-6";
-
-/** Used for both /dashboard/create-post and /dashboard/posts/:id/edit */
 export default function CreatePostPage() {
   const { id } = useParams();
-  // Keyed so switching between create/edit (or between posts) starts with fresh state.
-  return <PostForm key={id ?? "new"} id={id} />;
-}
-
-function PostForm({ id }) {
-  const isEdit = Boolean(id);
   const navigate = useNavigate();
 
-  const [form, setForm] = useState(emptyForm);
-  const [loading, setLoading] = useState(isEdit);
-  const [loadError, setLoadError] = useState("");
+  const [title, setTitle] = useState("");
+  const [excerpt, setExcerpt] = useState("");
+  const [content, setContent] = useState("");
+  const [category, setCategory] = useState("");
+  const [status, setStatus] = useState("Published");
+  const [image, setImage] = useState("");
+
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!isEdit) return;
-    const controller = new AbortController();
-    apiRequest(`/posts/${id}`, { auth: true, signal: controller.signal })
-      .then((data) => {
-        const post = data?.post ?? data;
-        setForm({
-          title: post.title ?? "",
-          excerpt: post.excerpt ?? "",
-          content: post.content ?? "",
-          category: post.category ?? "",
-          status: post.status ?? "Published",
-          image: post.image ?? "",
-        });
-        setLoading(false);
-      })
-      .catch((err) => {
-        if (err.name === "AbortError") return;
-        setLoadError(err.message || "Could not load the post.");
-        setLoading(false);
-      });
-    return () => controller.abort();
-  }, [id, isEdit]);
+    if (!id) return;
 
-  function update(field) {
-    return (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
-  }
+    async function loadPost() {
+      try {
+        setLoading(true);
+        const response = await fetch(
+          "https://blogify-oquvchi.vercel.app/api/posts/" + id,
+        );
+        const data = await response.json();
+        setTitle(data.post.title);
+        setExcerpt(data.post.excerpt || "");
+        setContent(data.post.content || "");
+        setCategory(data.post.category);
+        setStatus(data.post.status);
+        setImage(data.post.image || "");
+      } catch (err) {
+        console.log(err);
+        setError("Could not load the post.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadPost();
+  }, [id]);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
 
-    if (!form.title.trim() || !form.content.trim() || !form.category) {
+    if (!title || !content || !category) {
       setError("Title, content and category are required.");
       return;
     }
 
-    const body = {
-      ...form,
-      title: form.title.trim(),
-      excerpt: form.excerpt.trim(),
-      content: form.content.trim(),
-    };
+    const post = { title, excerpt, content, category, status, image };
+
+    let url = "https://blogify-oquvchi.vercel.app/api/posts";
+    let method = "POST";
+    if (id) {
+      url = "https://blogify-oquvchi.vercel.app/api/posts/" + id;
+      method = "PUT";
+    }
 
     try {
       setSaving(true);
-      await apiRequest(isEdit ? `/posts/${id}` : "/posts", {
-        method: isEdit ? "PUT" : "POST",
-        body,
-        auth: true,
+      const token = getAuth().token;
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token,
+        },
+        body: JSON.stringify(post),
       });
+      if (!response.ok) throw new Error("Failed to save post");
+
       navigate("/dashboard/posts");
     } catch (err) {
-      setError(err.message || "Could not save the post.");
+      console.log(err);
+      setError("Could not save the post.");
     } finally {
       setSaving(false);
     }
   }
 
-  const submitLabel = saving
-    ? "Saving..."
-    : isEdit
-      ? "Update Post"
-      : form.status === "Draft"
-        ? "Save Draft"
-        : "Publish Post";
+  let buttonText = "Publish Post";
+  if (status === "Draft") buttonText = "Save Draft";
+  if (id) buttonText = "Update Post";
+  if (saving) buttonText = "Saving...";
+
+  if (loading) {
+    return (
+      <div className="min-h-60 flex flex-col justify-center items-center">
+        <LoaderCircle className="animate-spin" />
+        <p className="mt-2 text-sm text-[#6B7280]">Loading post...</p>
+      </div>
+    );
+  }
 
   return (
     <section>
-      <PageHeader
-        title={isEdit ? "Edit Post" : "Create New Post"}
-        subtitle={isEdit ? "Update the details of your blog post" : "Fill in the details to create a new blog post"}
-      />
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-[#0F1729]">
+          {id ? "Edit Post" : "Create New Post"}
+        </h1>
+        <p className="mt-1 text-sm text-[#6B7280]">
+          {id ? "Update the details of your blog post" : "Fill in the details to create a new blog post"}
+        </p>
+      </div>
 
-      {loading && <LoadingState text="Loading post..." />}
-      {!loading && loadError && <ErrorState text={loadError} />}
+      <form onSubmit={handleSubmit} className="grid grid-cols-[1fr_320px] gap-6">
+        <div className="flex flex-col gap-5 rounded-xl border border-[#E5E7EB] bg-white p-6">
+          <div>
+            <label htmlFor="title" className="block text-sm font-medium text-[#0F1729]">
+              Post Title
+            </label>
+            <input
+              id="title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter post title..."
+              className="mt-1.5 w-full rounded-lg border border-[#E5E7EB] px-3.5 py-2.5 text-sm text-[#0F1729] outline-none focus:border-[#4346EF]"
+            />
+          </div>
 
-      {!loading && !loadError && (
-        <form onSubmit={handleSubmit} className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div className={`${cardClass} space-y-5`}>
+          <div>
+            <label htmlFor="excerpt" className="block text-sm font-medium text-[#0F1729]">
+              Excerpt
+            </label>
+            <input
+              id="excerpt"
+              type="text"
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+              placeholder="A short summary shown on post cards"
+              className="mt-1.5 w-full rounded-lg border border-[#E5E7EB] px-3.5 py-2.5 text-sm text-[#0F1729] outline-none focus:border-[#4346EF]"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="content" className="block text-sm font-medium text-[#0F1729]">
+              Content
+            </label>
+            <textarea
+              id="content"
+              rows={16}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Write your post content here..."
+              className="mt-1.5 w-full rounded-lg border border-[#E5E7EB] px-3.5 py-2.5 text-sm text-[#0F1729] outline-none focus:border-[#4346EF]"
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4 rounded-xl border border-[#E5E7EB] bg-white p-6">
+            <h2 className="text-lg font-semibold text-[#0F1729]">Post Settings</h2>
             <div>
-              <label htmlFor="title" className={labelClass}>
-                Post Title
+              <label htmlFor="category" className="block text-sm font-medium text-[#0F1729]">
+                Category
               </label>
-              <input
-                id="title"
-                value={form.title}
-                onChange={update("title")}
-                placeholder="Enter post title..."
-                className={inputClass}
-                required
-              />
+              <select
+                id="category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="mt-1.5 w-full rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm text-[#0F1729] outline-none focus:border-[#4346EF] cursor-pointer"
+              >
+                <option value="">Select category</option>
+                <option value="Technology">Technology</option>
+                <option value="Productivity">Productivity</option>
+                <option value="Design">Design</option>
+              </select>
             </div>
-
             <div>
-              <label htmlFor="excerpt" className={labelClass}>
-                Excerpt <span className="font-normal text-[#9CA3AF]">(optional)</span>
+              <label htmlFor="status" className="block text-sm font-medium text-[#0F1729]">
+                Status
               </label>
-              <input
-                id="excerpt"
-                value={form.excerpt}
-                onChange={update("excerpt")}
-                placeholder="A short summary shown on post cards"
-                maxLength={200}
-                className={inputClass}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="content" className={labelClass}>
-                Content
-              </label>
-              <textarea
-                id="content"
-                value={form.content}
-                onChange={update("content")}
-                placeholder="Write your post content here..."
-                rows={16}
-                className={`${inputClass} resize-y`}
-                required
-              />
+              <select
+                id="status"
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="mt-1.5 w-full rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm text-[#0F1729] outline-none focus:border-[#4346EF] cursor-pointer"
+              >
+                <option value="Published">Published</option>
+                <option value="Draft">Draft</option>
+              </select>
             </div>
           </div>
 
-          <div className="space-y-6">
-            <div className={`${cardClass} space-y-4`}>
-              <h2 className="text-lg font-semibold text-[#0F1729]">Post Settings</h2>
-              <div>
-                <label htmlFor="category" className={labelClass}>
-                  Category
-                </label>
-                <select
-                  id="category"
-                  value={form.category}
-                  onChange={update("category")}
-                  className={`${inputClass} cursor-pointer`}
-                  required
-                >
-                  <option value="" disabled>
-                    Select category
-                  </option>
-                  {CATEGORIES.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="status" className={labelClass}>
-                  Status
-                </label>
-                <select
-                  id="status"
-                  value={form.status}
-                  onChange={update("status")}
-                  className={`${inputClass} cursor-pointer`}
-                >
-                  {STATUSES.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className={cardClass}>
-              <h2 className="mb-4 text-lg font-semibold text-[#0F1729]">Featured Image</h2>
-              <ImagePicker
-                value={form.image}
-                onChange={(image) => setForm((prev) => ({ ...prev, image }))}
-              />
-            </div>
-
-            {error && <p className="text-sm text-red-500">{error}</p>}
-
-            <div className="flex gap-3">
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex-1 rounded-lg bg-[#4346EF] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#3538d4] disabled:cursor-not-allowed disabled:opacity-70 cursor-pointer"
-              >
-                {submitLabel}
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                disabled={saving}
-                className="rounded-lg border border-[#E5E7EB] px-4 py-2.5 text-sm font-medium text-[#0F1729] hover:bg-[#F9FAFB] disabled:opacity-60 cursor-pointer"
-              >
-                Cancel
-              </button>
-            </div>
+          <div className="rounded-xl border border-[#E5E7EB] bg-white p-6">
+            <h2 className="mb-4 text-lg font-semibold text-[#0F1729]">Featured Image</h2>
+            <ImagePicker image={image} setImage={setImage} />
           </div>
-        </form>
-      )}
+
+          {error && <p className="text-sm text-red-500">{error}</p>}
+
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex-1 rounded-lg bg-[#4346EF] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#3538d4] disabled:opacity-70 cursor-pointer"
+            >
+              {buttonText}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/dashboard/posts")}
+              className="rounded-lg border border-[#E5E7EB] px-4 py-2.5 text-sm font-medium text-[#0F1729] hover:bg-[#F9FAFB] cursor-pointer"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </form>
     </section>
   );
 }

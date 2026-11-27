@@ -3,10 +3,10 @@ import { features } from "../../data/homeData";
 
 export default function FeaturesSection() {
   return (
-    <section className="px-4 py-20 lg:py-28">
+    <section className="px-4 py-28">
       <div className="mx-auto max-w-7xl">
         <div className="mx-auto max-w-lg text-center">
-          <h2 className="text-3xl font-bold text-[#0F1729] sm:text-4xl">
+          <h2 className="text-4xl font-bold text-[#0F1729]">
             Why Choose Blogify?
           </h2>
           <p className="mt-4 text-[#6B7280]">
@@ -14,7 +14,7 @@ export default function FeaturesSection() {
             blogging experience.
           </p>
         </div>
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
+        <div className="mt-12 grid grid-cols-3 gap-6">
           {features.map((feature) => (
             <FeatureCard key={feature.title} {...feature} />
           ))}

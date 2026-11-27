@@ -35,7 +35,7 @@ export default function PostsList({
           </div>
         )}
         {!loading && !error && (
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
+          <div className="mt-12 grid grid-cols-3 gap-6">
             {posts.map((post, index) => (
               <PostCard key={post.id ?? index} {...post} />
             ))}
