@@ -1,7 +1,8 @@
-import React from 'react'
+import { useParams } from "react-router-dom";
+import PostDetailsSection from "../../components/post-details/PostDetailsSection";
 
 export default function PostDetailsPage() {
-  return (
-    <div>PostDetailsPage</div>
-  )
+  const { id } = useParams();
+
+  return <PostDetailsSection id={id} />;
 }

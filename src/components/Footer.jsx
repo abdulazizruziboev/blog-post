@@ -11,7 +11,7 @@ export default function Footer() {
         {/*  */}
         <div className="flex justify-between w-full">
           <div className="flex flex-col gap-4">
-            <Link to="/">
+            <Link to="/" className="inline-flex w-fit rounded-md">
               <img src={Logo} alt="Blogify logo" />
             </Link>
             <p className="max-w-96 text-[#6B7280] text-[14px] leading-5">
@@ -25,9 +25,9 @@ export default function Footer() {
               Quick links
             </h2>
             <nav className="flex flex-col gap-2 text-[#6B7280] text-[14px] leading-5 mt-3.5">
-              <Link to="/">Home</Link>
-              <Link to="/posts">Posts</Link>
-              <Link to="/login">Login</Link>
+              <Link to="/" className="w-fit rounded-md hover:text-[#4346EF]">Home</Link>
+              <Link to="/posts" className="w-fit rounded-md hover:text-[#4346EF]">Posts</Link>
+              <Link to="/login" className="w-fit rounded-md hover:text-[#4346EF]">Login</Link>
             </nav>
           </div>
           {/*  */}
@@ -36,16 +36,34 @@ export default function Footer() {
               Connect
             </h2>
             <div className="flex gap-2 mt-4">
-              <Link to={"https://x.com"} target="_blank">
-                <img src={Twitter} alt="Twitter log" />
+              <Link
+                to="https://x.com"
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-md p-1 hover:bg-[#F3F4F6]"
+                aria-label="Twitter"
+              >
+                <img src={Twitter} alt="" />
               </Link>
 
-              <Link to={"https://github.com"} target="_blank">
-                <img src={GitHub} alt="GitHub log" />
+              <Link
+                to="https://github.com"
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-md p-1 hover:bg-[#F3F4F6]"
+                aria-label="GitHub"
+              >
+                <img src={GitHub} alt="" />
               </Link>
 
-              <Link to={"https://linkedin.com"} target="_blank">
-                <img src={Linkedin} alt="Linkedin log" />
+              <Link
+                to="https://linkedin.com"
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-md p-1 hover:bg-[#F3F4F6]"
+                aria-label="LinkedIn"
+              >
+                <img src={Linkedin} alt="" />
               </Link>
             </div>
           </div>
