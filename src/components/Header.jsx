@@ -3,7 +3,7 @@ import Logo from "../assets/images/logo.svg";
 
 export default function Header() {
   return (
-    <header className="p-4 shadow-2xs bg-white min-h-17.5">
+    <header className="p-4 shadow-2xs bg-white min-h-17.5 sticky top-0 z-50">
       <div className="max-w-7xl w-full mx-auto flex justify-between items-center">
         <Link to="/" className="rounded-md">
           <img src={Logo} alt="Blogify logo" />
